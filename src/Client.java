@@ -1,112 +1,117 @@
+import java.io.*;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Client {
-    private static LaptopCrawl laptopCrawl= new LaptopCrawl();
-    private static ProductManager productManager= new ProductManager(laptopCrawl);
-    public static void start (){
-        System.out.println("------------------*** Menu ***------------------");
-        System.out.println("1. Show all products");
-        System.out.println("2. Add new product");
-        System.out.println("3. Edit product");
-        System.out.println("4. Delete product by id");
-        System.out.println("5. Sort products list");
-        System.out.println("6. Find product");
-        System.out.println("7. Show history");
-        System.out.println("0. Exit");
+    public static ArrayList<Account> accounts = new ArrayList<>();
+    private static String acc;
+    public static void registrationAccount (){
+        Scanner input = new Scanner(System.in).useDelimiter("\n");
+        System.out.print("tài khoản: ");
+        String account = input.next();
+        System.out.print("mật khẩu: ");
+        String password = input.next();
+        System.out.print("nhập lại mật khẩu: ");
+        String password1 = input.next();
+        System.out.println("bạn có đồng ý với điều khoản của chúng tôi?(y/n)");
+        System.out.println("bạn phải gia nhập câu lạc bộ long đẹp trai");
+        System.out.println("bạn phải thông qua kiểm tra của kiều anh xinh");
+        String pass = input.next();
+        if (pass.equals("y")){
+            if (password.equals(password1)){
+                Account account1 = new Account(account,password);
+                accounts.add(account1);
+            }else registrationAccount();
+        }else registrationAccount();
+        Client.writeAccount();
+        ClientUser.start();
+    }
+    public static void login (){
+        Scanner input = new Scanner(System.in).useDelimiter("\n");
+        System.out.print("tài khoản: ");
+        String account = input.next();
+        System.out.print("mật khẩu: ");
+        String password = input.next();
+        for (Account value : accounts) {
+            if (account.equals(value.getName()) && password.equals(value.getPasswords())) {
+                if (acc.equals("user")) {
+                    ClientUser.start();
+                }else ClientAdmin.start();
+            }
+        }
+        System.out.println("hãy đăng nhập lại: ");
+        Client.login();
+    }
+    public static void writeAccount(){
+
+        String fileName = "C:\\Users\\tran\\IdeaProjects\\CaseStudy2.0\\src\\Account.txt";
+        try {
+            FileWriter writer = new FileWriter(fileName);
+            BufferedWriter bw = new BufferedWriter(writer);
+            for(Account his:accounts) {
+                String accountInfo = his.toString();
+                bw.write(accountInfo);
+                bw.newLine();
+            }
+            bw.close();
+
+        } catch (IOException var6) {
+            System.err.format("IOException: %s%n", var6);
+        }
+    }
+
+    public static void readAccount() {
+        String fileName = "C:\\Users\\tran\\IdeaProjects\\CaseStudy2.0\\src\\Account.txt";
+        try {
+            FileReader reader = new FileReader(fileName);
+            BufferedReader br = new BufferedReader(reader);
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] results=line.split(",");
+                Account account = new Account(results[0],results[1]);
+                accounts.add(account);
+            }
+            br.close();
+        } catch (IOException var6) {
+            System.err.format("IOException: %s%n", var6);
+        }
+
+    }
+
+    public static void start(){
+        Client.readAccount();
+        System.out.println("Who are you?");
+        System.out.println("1. Admin");
+        System.out.println("2. Customer");
         System.out.println("-------------------------------------------------");
         System.out.print("Your choice: ");
         Scanner option = new Scanner(System.in);
-        String choose = option.next();
-
-        Scanner input = new Scanner(System.in).useDelimiter("\n");
-        switch (choose) {
+        String choice = option.next();
+        System.out.println();
+        switch (choice){
             case "1":
-                productManager.showAllProducts();
+                acc="admin";
+                System.out.println("Mời bạn đăng nhập: ");
+                Client.login();
                 break;
             case "2":
-                String id ;
-                System.out.print("New product id: ");
-                id = input.nextLine();
-                while (productManager.checkExistId(id)) {
-                    System.out.println("This id already exist !");
-                    System.out.print("New product id: ");
-                    id = input.next();
-                }
-
-                System.out.print("Categoty: ");
-                String category = input.next();
-
-                System.out.print("Name: ");
-                String name = input.next();
-
-                System.out.print("Price: ");
-                String price = input.next();
-                productManager.addProduct(category, id, name, price);
-                break;
-            case "3":
-                // Edit product
-                System.out.print("Edit product id: ");
-                String editId = input.next();
-                System.out.print("New product name: ");
-                String editName = input.next();
-                System.out.print("New product price: ");
-                String editPrice = input.next();
-                System.out.print("New product category: ");
-                String editCategory = input.next();
-                productManager.editProduct(editId, editName, editPrice, editCategory);
-                break;
-            case "4":
-                // Delete
-                System.out.print("Delete product id: ");
-                String deleteId = option.next();
-                productManager.deleteProduct(deleteId);
-                break;
-            case "5":
-                System.out.println("Sort option:");
-                System.out.println("1. Ascending");
-                System.out.println("2. Descending ");
-                System.out.print("Your choose: ");
-                int sortOption = option.nextInt();
-                switch (sortOption) {
-                    case 1:
-                        System.out.println("Ascending price list");
-                        productManager.sort(true);
+                acc="user";
+                System.out.println("1. đăng nhập");
+                System.out.println("2. đăng ký");
+                String choice1 = option.next();
+                switch (choice1){
+                    case "1":
+                        Client.login();
                         break;
-                    case 2:
-                        System.out.println("Descending price list");
-                        productManager.sort(false);
-                        break;
-                }
-
-                break;
-            case "6":
-                System.out.println("Find option:");
-                System.out.println("1. Find by name");
-                System.out.println("2. Find by id ");
-                System.out.print("Your choose: ");
-                int findOption = option.nextInt();
-                switch (findOption) {
-                    case 1:
-                        System.out.print("Input product name: ");
-                        String productName = input.next();
-                        productManager.findProductByName(productName);
-                        break;
-                    case 2:
-                        System.out.print("Input product id: ");
-                        String productId = input.next();
-                        productManager.findProductById(productId);
+                    case "2":
+                        Client.registrationAccount();
                         break;
                 }
                 break;
-            case "7":
-                productManager.showHistory();
-                break;
-            case "0":
-                productManager.update();
-                System.exit(0);
             default:
                 System.out.println("Wrong option, please choose again !");
+                System.out.println();
+                start();
         }
-        start();
     }
 }
